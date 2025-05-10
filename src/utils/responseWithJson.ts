@@ -9,4 +9,4 @@ const responseWithJson = (status:number, payload:any)=>{
 
 }
 
-module.exports = { responseWithJson}
+module.exports = { responseWithJson }
