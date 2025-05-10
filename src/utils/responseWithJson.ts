@@ -1,12 +1,6 @@
-const responseWithJson = (status:number, payload:any)=>{
+import { Response } from "express"
+export const respondWithJSON = (res: Response, status:number, payload:any)=>{
     const body = JSON.stringify(payload)
-    return new Response(body, {
-        status,
-        headers:{
-            "Content-Type":"application/json"
-        }
-    })
+    return res.status(status).json(body)
 
 }
-
-module.exports = { responseWithJson }
