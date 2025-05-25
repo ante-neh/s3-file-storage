@@ -1,5 +1,6 @@
 import { Request } from "express";
 import { JwtPayload } from 'jsonwebtoken';
+import { Date, Document, Schema } from "mongoose";
 
 interface CustomJwtPayload extends JwtPayload {
   id: string;
@@ -31,7 +32,26 @@ class NotFoundError extends Error {
     constructor(message: string){
         super(message);
     }
-} 
+}
+
+interface IUser extends Document {
+    name: string;
+    email: string;
+    password: string;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+interface IVideo extends Document {
+    _id: string;
+    title: string;
+    description: string;
+    thumbnailUrl?: string;
+    videoUrl?:string;
+    user: Schema.Types.ObjectId;
+    createdAt: Date;
+    updatedAt: Date;
+}
 
 export { 
     BadRequestError, 
@@ -39,5 +59,7 @@ export {
     UserForbiddenError, 
     NotFoundError, 
     CustomRequest, 
-    CustomJwtPayload 
+    CustomJwtPayload,
+    IUser,
+    IVideo
 };
