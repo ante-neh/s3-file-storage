@@ -19,12 +19,16 @@
     "mongoose": "^8.14.2"
   },
   "devDependencies": {
+    "@eslint/js": "^9.27.0",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.1",
     "@types/node": "^22.15.12",
+    "eslint": "^8.57.1",
+    "globals": "^16.1.0",
     "nodemon": "^3.1.10",
     "server.js": "^1.0.0",
     "ts-node-dev": "^2.0.0",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.32.1"
   }
 }
