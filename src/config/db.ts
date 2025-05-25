@@ -1,12 +1,12 @@
 import mongoose from 'mongoose';
-import { DBURL } from './env' 
+import { MONGO_CONN } from './env' 
 
 export const connectToDatabase = async () => {
     try{
-        if (!DBURL) {
+        if (!MONGO_CONN) {
             throw new Error('Database URL is not defined');
         } 
-        await mongoose.connect(DBURL)
+        await mongoose.connect(MONGO_CONN)
         console.log('Connected to the database successfully');
     }catch(error){
         console.error('Error connecting to the database:', error);
