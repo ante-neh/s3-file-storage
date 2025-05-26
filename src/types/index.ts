@@ -34,7 +34,13 @@ class NotFoundError extends Error {
     }
 }
 
+class InvalidInputError extends Error {
+    constructor(message: string){
+        super(message);
+    }
+}
 interface IUser extends Document {
+    _id: Schema.Types.ObjectId;
     name: string;
     email: string;
     password: string;
@@ -43,7 +49,7 @@ interface IUser extends Document {
 }
 
 interface IVideo extends Document {
-    _id: string;
+    _id: Schema.Types.ObjectId;
     title: string;
     description: string;
     thumbnailUrl?: string;
@@ -53,13 +59,25 @@ interface IVideo extends Document {
     updatedAt: Date;
 }
 
+interface IRefreshToken extends Document {
+    _id: Schema.Types.ObjectId;
+    user: Schema.Types.ObjectId;
+    token: string;
+    createdAt: Date;
+    updatedAt: Date;
+    expiresAt: Date;
+    revoked?: boolean;
+}
+
 export { 
     BadRequestError, 
     UserNotAuthenticatedError, 
     UserForbiddenError, 
-    NotFoundError, 
+    NotFoundError,
+    InvalidInputError,
     CustomRequest, 
     CustomJwtPayload,
     IUser,
-    IVideo
+    IVideo,
+    IRefreshToken
 };
