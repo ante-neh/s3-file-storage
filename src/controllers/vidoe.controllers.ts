@@ -1,6 +1,6 @@
 import { Response } from "express";
 import mongoose from "mongoose";
-import { CustomRequest, InvalidInputError, NotFoundError, UserNotAuthenticatedError } from "../types";
+import { CustomRequest, InvalidInputError, IVideoPopulated, NotFoundError, UserNotAuthenticatedError } from "../types";
 import { asyncAwaitHandler } from "../middlewares/async.middleware";
 import { Video } from "../models/video.models";
 
@@ -36,12 +36,31 @@ const getVideos = asyncAwaitHandler(async(req: CustomRequest, res: Response)=>{
         throw new UserNotAuthenticatedError("User not authenticated");
     }
 
-    const videos = await Video.find({ user: userId }).select("-__v");
+    const page = Math.max(1, parseInt(req.query.page as string) || 1);
+    const limit = Math.min(100, parseInt(req.query.limit as string) || 10);
+    const skip = (page - 1) * limit;
+
+    const [ videos, totalVidoes ] = await Promise.all([
+        Video.find({ user: userId})
+        .select("-__v")
+        .populate<{ user: {name: string, email: string }}>("user", "name email")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean<IVideoPopulated>(),
+        Video.countDocuments({ user: userId})
+    ])
 
     res.status(200).json({
         success: true,
         data: {
             videos,
+        },
+        pagination: {
+            total: totalVidoes,
+            page,
+            limit,
+            pages: Math.ceil(totalVidoes / limit),
         }
     })
 })
@@ -53,7 +72,7 @@ const getVideo = asyncAwaitHandler(async(req: CustomRequest, res: Response)=>{
         throw new UserNotAuthenticatedError("User not authenticated");
     }
 
-    if(!videoId || mongoose.Types.ObjectId.isValid(videoId)){
+    if(!videoId || !mongoose.Types.ObjectId.isValid(videoId)){
         throw new InvalidInputError("Invalid video ID");
     }
 

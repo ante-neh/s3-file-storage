@@ -1,6 +1,6 @@
 import { Request } from "express";
 import { JwtPayload } from 'jsonwebtoken';
-import { Date, Document, Schema } from "mongoose";
+import mongoose, { Date, Document, Schema } from "mongoose";
 
 interface CustomJwtPayload extends JwtPayload {
   id: string;
@@ -58,6 +58,13 @@ interface IVideo extends Document {
     createdAt: Date;
     updatedAt: Date;
 }
+interface IVideoPopulated extends Omit<IVideo, "user"> {
+  user: { 
+    _id: mongoose.Types.ObjectId; 
+    name: string; 
+    email: string 
+  };
+}
 
 interface IRefreshToken extends Document {
     _id: Schema.Types.ObjectId;
@@ -79,5 +86,6 @@ export {
     CustomJwtPayload,
     IUser,
     IVideo,
+    IVideoPopulated,
     IRefreshToken
 };
