@@ -71,11 +71,11 @@ const signUp = asyncAwaitHandler(async(req: Request, res: Response)=>{
         const token = generateAccessToken(user[0]._id.toString())
         const refreshToken = generateRefreshToken(user[0]._id.toString());
     
-        await RefreshToken.create({
+        await RefreshToken.create([{
             user: user[0]._id.toString(),
             token: refreshToken,
             expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-        }, { session})
+        }], { session})
 
         await session.commitTransaction();
         session.endSession();

@@ -1,14 +1,10 @@
 import { Router } from 'express' 
+import { getUser } from '../controllers/user.controller'
+import { authMiddleware } from '../middlewares/auth.middleware'
+
 const userRouter = Router() 
 
-userRouter.get("/users", (req, res)=>{
-    console.log("Fetching all users")
-    res.send("All users fetched")
-})
-
-userRouter.get("/users/:id", (req, res)=>{
-    console.log("Fetching user with Id:", req.params.id)
-})
+userRouter.get("/:id",authMiddleware, getUser)
 
 
 export { userRouter }
