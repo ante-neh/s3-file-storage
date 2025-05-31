@@ -78,7 +78,7 @@ const signUp = (0, async_middleware_1.asyncAwaitHandler)((req, res) => __awaiter
         }
         const existingUser = yield user_models_1.User.findOne({ email });
         if (existingUser) {
-            throw new Error("User already exists");
+            throw new types_1.BadRequestError("User already exists");
         }
         const user = yield user_models_1.User.create([{ name, email, password }], { session });
         const token = (0, jwthandler_1.generateAccessToken)(user[0]._id.toString());

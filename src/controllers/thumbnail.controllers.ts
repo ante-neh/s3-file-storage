@@ -19,7 +19,7 @@ const uploadThumbnail = asyncAwaitHandler(async (req: CustomRequest, res: Respon
 
     const serverBaseUrl = `${req.protocol}://${req.get("host")}`
     const thumbnailUrl = `${serverBaseUrl}/assets/${fileName}`
-    const existingVideo = await Video.findById(videoId)
+    const existingVideo = await Video.findById(videoId).select("-__v")
     
     if(!existingVideo){
         throw new BadRequestError("Video doesn't exist")
