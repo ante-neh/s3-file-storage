@@ -76,6 +76,17 @@ interface IRefreshToken extends Document {
     revoked?: boolean;
 }
 
+interface UploadFile {
+    fileName: string,
+    fileBuffer: Buffer,
+    contentType: string,
+}
+
+interface GetFile {
+    expiresIn: number,
+    fileName: string
+}
+
 export { 
     BadRequestError, 
     UserNotAuthenticatedError, 
@@ -87,5 +98,7 @@ export {
     IUser,
     IVideo,
     IVideoPopulated,
-    IRefreshToken
+    IRefreshToken,
+    UploadFile,
+    GetFile
 };
