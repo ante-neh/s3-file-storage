@@ -61,16 +61,17 @@ const signUp = asyncAwaitHandler(async(req: Request, res: Response)=>{
         if(!name || !email || !password){
             throw new InvalidInputError("Please provide all required fields");
         }
-    
+
         const existingUser = await User.findOne({ email });
         if(existingUser){
-            throw new Error("User already exists");
+            throw new BadRequestError("User already exists");
         }
-    
+        
+        
         const user = await User.create([{name, email, password }], { session});
         const token = generateAccessToken(user[0]._id.toString())
         const refreshToken = generateRefreshToken(user[0]._id.toString());
-    
+        
         await RefreshToken.create([{
             user: user[0]._id.toString(),
             token: refreshToken,

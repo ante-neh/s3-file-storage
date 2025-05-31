@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { signIn, signUp, signOut, refreshToken } from '../controllers/auth.controller' 
+import { signIn, signUp, signOut, refreshToken } from '../controllers/auth.controllers' 
 
 const authRouter = Router();
 authRouter.post('/sign-in', signIn);

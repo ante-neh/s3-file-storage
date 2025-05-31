@@ -1,0 +1,10 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.thumbnailRouter = void 0;
+const express_1 = require("express");
+const thumbnail_controllers_1 = require("../controllers/thumbnail.controllers");
+const auth_middleware_1 = require("../middlewares/auth.middleware");
+const file_upload_middleware_1 = require("../middlewares/file-upload.middleware");
+const thumbnailRouter = (0, express_1.Router)();
+exports.thumbnailRouter = thumbnailRouter;
+thumbnailRouter.post('/:videoId', auth_middleware_1.authMiddleware, file_upload_middleware_1.fileUploadMiddleware, thumbnail_controllers_1.uploadThumbnail);
