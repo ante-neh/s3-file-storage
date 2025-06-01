@@ -1,8 +1,8 @@
 import { Response } from "express";
 import { asyncAwaitHandler } from "../middlewares/async.middleware";
 import { Video } from "../models/video.models";
-import { BadRequestError, CustomRequest } from "../types";
-import { generateRandom, getFileFromS3, uploadFileToS3 } from "../utils/s3";
+import { BadRequestError, CustomRequest, NotFoundError } from "../types";
+import { deleteFileFromS3, generateRandom, invalidateCloudFrontCache, uploadFileToS3 } from "../utils/s3";
 
 const uploadThumbnail = asyncAwaitHandler(async (req: CustomRequest, res: Response) => {
     const uploadedFile: Express.Multer.File | undefined = req.file && req.file 
@@ -15,10 +15,7 @@ const uploadThumbnail = asyncAwaitHandler(async (req: CustomRequest, res: Respon
     const fileName = generateRandom()
     await uploadFileToS3({ fileName, fileBuffer: uploadedFile.buffer, contentType: uploadedFile.mimetype })
 
-    const thumbnailUrl = await getFileFromS3({ fileName, expiresIn: 60 * 60 * 24 * 7 })
-    if(!thumbnailUrl){
-        throw new Error("Internal server error")
-    }
+    const thumbnailUrl = fileName
     const video = await Video.findById(videoId).select("-__v")
     
     if(!video){
@@ -37,4 +34,26 @@ const uploadThumbnail = asyncAwaitHandler(async (req: CustomRequest, res: Respon
     })
 })
 
-export { uploadThumbnail }
+
+const deleteThumbnail = asyncAwaitHandler(async(req: CustomRequest, res: Response)=>{
+    const { videoId } = req.params;
+    if(!videoId){
+        throw new BadRequestError("Video id is required");
+    }
+
+    const video = await Video.findById({ videoId }).select("-__v");
+    if(!video){
+        throw new NotFoundError("Vidoe not found");
+    }
+
+    await deleteFileFromS3(video.thumbnailUrl || "");
+    await invalidateCloudFrontCache(video.thumbnailUrl || "");
+    await video.deleteOne() 
+
+    res.status(200).json({
+        success: true,
+        message: "Thumbnail deleted successfully",
+    })
+})
+
+export { uploadThumbnail, deleteThumbnail }

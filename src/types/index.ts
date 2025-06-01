@@ -83,7 +83,7 @@ interface UploadFile {
 }
 
 interface GetFile {
-    expiresIn: number,
+    expiresIn?: number,
     fileName: string
 }
 

@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import { CustomRequest, InvalidInputError, IVideoPopulated, NotFoundError, UserNotAuthenticatedError } from "../types";
 import { asyncAwaitHandler } from "../middlewares/async.middleware";
 import { Video } from "../models/video.models";
+import { getFileCloudFront } from "../utils/s3";
 
 const uploadVideo = asyncAwaitHandler(async(req: CustomRequest, res: Response) =>{
     const userId = req.user?.id;
@@ -40,16 +41,23 @@ const getVideos = asyncAwaitHandler(async(req: CustomRequest, res: Response)=>{
     const limit = Math.min(100, parseInt(req.query.limit as string) || 10);
     const skip = (page - 1) * limit;
 
-    const [ videos, totalVidoes ] = await Promise.all([
+    let [ videos, totalVidoes ] = await Promise.all([
         Video.find({ user: userId})
         .select("-__v")
         .populate<{ user: {name: string, email: string }}>("user", "name email")
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
-        .lean<IVideoPopulated>(),
+        .lean<IVideoPopulated[]>(),
         Video.countDocuments({ user: userId})
     ])
+
+    videos = videos.map((video)=>(
+        {
+            ...video,
+            thumbnailUrl: getFileCloudFront({ fileName: video.thumbnailUrl || "" }),
+        }
+    ))
 
     res.status(200).json({
         success: true,
@@ -80,6 +88,8 @@ const getVideo = asyncAwaitHandler(async(req: CustomRequest, res: Response)=>{
     if(!video){
         throw new NotFoundError("Video not found");
     }
+
+    video.thumbnailUrl = getFileCloudFront({ fileName: video.thumbnailUrl || "" })
 
     res.status(200).json({
         success: true,

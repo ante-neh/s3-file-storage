@@ -8,3 +8,4 @@ const file_upload_middleware_1 = require("../middlewares/file-upload.middleware"
 const thumbnailRouter = (0, express_1.Router)();
 exports.thumbnailRouter = thumbnailRouter;
 thumbnailRouter.post('/:videoId', auth_middleware_1.authMiddleware, file_upload_middleware_1.fileUploadMiddleware, thumbnail_controllers_1.uploadThumbnail);
+thumbnailRouter.delete('/:videoId', auth_middleware_1.authMiddleware, thumbnail_controllers_1.deleteThumbnail);

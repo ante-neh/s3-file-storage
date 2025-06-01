@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.uploadThumbnail = void 0;
+exports.deleteThumbnail = exports.uploadThumbnail = void 0;
 const async_middleware_1 = require("../middlewares/async.middleware");
 const video_models_1 = require("../models/video.models");
 const types_1 = require("../types");
@@ -22,10 +22,7 @@ const uploadThumbnail = (0, async_middleware_1.asyncAwaitHandler)((req, res) => 
     }
     const fileName = (0, s3_1.generateRandom)();
     yield (0, s3_1.uploadFileToS3)({ fileName, fileBuffer: uploadedFile.buffer, contentType: uploadedFile.mimetype });
-    const thumbnailUrl = yield (0, s3_1.getFileFromS3)({ fileName, expiresIn: 60 * 60 * 24 * 7 });
-    if (!thumbnailUrl) {
-        throw new Error("Internal server error");
-    }
+    const thumbnailUrl = fileName;
     const video = yield video_models_1.Video.findById(videoId).select("-__v");
     if (!video) {
         throw new types_1.BadRequestError("Video doesn't exist");
@@ -41,3 +38,21 @@ const uploadThumbnail = (0, async_middleware_1.asyncAwaitHandler)((req, res) => 
     });
 }));
 exports.uploadThumbnail = uploadThumbnail;
+const deleteThumbnail = (0, async_middleware_1.asyncAwaitHandler)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { videoId } = req.params;
+    if (!videoId) {
+        throw new types_1.BadRequestError("Video id is required");
+    }
+    const video = yield video_models_1.Video.findById({ videoId }).select("-__v");
+    if (!video) {
+        throw new types_1.NotFoundError("Vidoe not found");
+    }
+    yield (0, s3_1.deleteFileFromS3)(video.thumbnailUrl || "");
+    yield (0, s3_1.invalidateCloudFrontCache)(video.thumbnailUrl || "");
+    yield video.deleteOne();
+    res.status(200).json({
+        success: true,
+        message: "Thumbnail deleted successfully",
+    });
+}));
+exports.deleteThumbnail = deleteThumbnail;

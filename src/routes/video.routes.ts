@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { getVideo, getVideos, uploadVideo } from '../controllers/vidoe.controllers'
+import { getVideo, getVideos, uploadVideo } from '../controllers/video.controllers'
 import { authMiddleware } from '../middlewares/auth.middleware'
 
 const videoRouter = Router()
